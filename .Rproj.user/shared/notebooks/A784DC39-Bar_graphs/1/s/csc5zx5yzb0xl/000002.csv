@@ -1,0 +1,29 @@
+"0","library(readr)"
+"0","dat_4 <- read_delim(""shocks.csv"", ""\t"", "
+"0","                    escape_double = FALSE, trim_ws = TRUE)"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m-------------------------------------------------------------------------------------------[39m
+cols(
+  Refugee_Status = [31mcol_character()[39m,
+  Indicator = [31mcol_character()[39m,
+  Numbers = [31mcol_character()[39m,
+  Perc = [32mcol_double()[39m,
+  Percent = [31mcol_character()[39m
+)
+
+"
+"0","dat_4$Indicator = str_wrap(dat_4$Indicator, width = 10)"
+"0",""
+"0","bargraph9 <- ggplot(data = dat_4, aes(x =Indicator, y =Perc, fill = Refugee_Status))+"
+"0","  geom_bar(stat = ""identity"",position = ""dodge"", colour=""black"")+"
+"0","  scale_y_continuous(expand = c(0, 0), limits = c(0, 70))+"
+"0","  # scale_fill_manual(values=c(""#eb5859"", ""#315975""))+"
+"0","  geom_text(aes(label = Perc, hjust = 0.3,vjust = -0.4),size=3.5,"
+"0","            position = position_dodge(width = 1.0))+"
+"0","  "
+"0","  mytheme+"
+"0","  scale_fill_manual(values = c(""#eb5859"", ""#315975""))+"
+"0","  labs(title = ""% OF HHs BY TYPE OF SHOCK EXPERIENCED DURING MPCA"")"
+"0","#      x = ""Marital status"","
+"0","#      y =""percentage"")"
+"0","bargraph9"

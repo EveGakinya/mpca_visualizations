@@ -1,0 +1,4 @@
+"0","  ggsave(bargraph1, filename = ""bargraph7"",  bg = ""transparent"")"
+"2","Error: Unknown graphics device ''
+[90mRun `rlang::last_error()` to see where the error occurred.[39m
+"

@@ -1,0 +1,202 @@
+---
+title: "mpca_visualization"
+author: "Evelyn"
+date: "12/21/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### 2. Load required packages
+<br>
+```{r first chunk}
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+```
+### 3. Read in required dataset
+```{r}
+##wafanyikazi dataset
+df <- wafanyikazi
+```
+
+```{r}
+##Generate summary statistics table
+tab1 <- df %>% 
+  group_by(Gender) %>% 
+  summarize(count = n()) %>% 
+  mutate(percentage = round(count/sum(count)*100,0))  
+```
+
+```{r}
+# mytheme <-  theme(#plot.title = element_text(face = "bold", hjust = 0.5, vjust = -0.25,size = 14),
+#                 #axis.title = element_text(face = "italic", size = 12),
+#                 # axis.text = element_text(face = "bold"),
+#                 axis.line = element_line(size = 1),
+#                 panel.border = element_blank(),
+#                 panel.grid.major = element_blank(),
+#                 panel.grid.minor = element_blank(),
+#                 plot.subtitle = element_text(hjust = 0.5,size = 12),
+#                 plot.caption = element_text(face = "bold",size = 12),
+#                 panel.background = element_rect(fill = "#555859", colour = "#555859"),
+#                 plot.background = element_rect(fill = "#555859", color = "#555859"),
+#                 # bg of the plot
+#                 axis.text = element_text(size = rel(0.8), colour = "#d4cabd"),
+#                 legend.position="bottom",
+#                 legend.title = element_blank(),
+#                 legend.background = element_rect(fill = "#555859"), # get rid of legend bg
+#                 # legend.box.background = element_rect(fill = "#555859") # get rid of legend panel bg
+                )
+```
+
+```{r}
+##Generate bar graph
+  
+  bargraph1 <- ggplot(data = tab1,aes(x = Gender,y = percentage)) +
+               geom_bar(stat = "identity",fill = "brown") +
+               geom_text(aes(label = paste0(percentage,"%")),hjust = 0.5,vjust = -0.25)+
+               mytheme+
+               
+               labs(#title = "Gender distribution",
+                    x = "Gender",
+                    y = "percentage")
+  bargraph1
+  ggsave(bargraph1, filename = "bargraph7",  bg = "transparent")
+```
+```{r}
+tab2 <- df %>% 
+    group_by(Department) %>% 
+    summarise(count =n()) 
+tab2
+  ##Generate bar graph for department 
+  bargraph2 <- ggplot(data = tab2,aes(x = reorder(Department,-count),y = count))+
+               geom_bar(stat = "identity",fill = "#315975")+
+               geom_text(aes(label = count,hjust = 0.5, vjust = -0.25))+
+               mytheme+
+               labs(title = "Distribution of department",
+                    x = "Department",
+                    y = "count")
+  bargraph2
+```
+```{r}
+##Summary statistics for marital status  
+  tab3 <- df %>% 
+    group_by(Marital_Status) %>% 
+    summarise(count = n()) %>% 
+    mutate(percentage = round(count/sum(count)*100,0))
+  tab3
+  ##Bar graph for marital status
+  bargraph3 <- ggplot(data = tab3,aes(x = Marital_Status, y = percentage)) +
+               geom_bar(stat ="identity", fill = "#08a650")+
+               geom_text(aes(label = paste0(percentage,"%"), hjust = 0.5, vjust = -0.25))+
+               mytheme+
+               labs(title = "Distribution of Marital status",
+                    x = "Marital status",
+                    y = "percentage")
+  bargraph3
+```
+```{r}
+# plotting bargraph for more than one variable
+  ## Summary statistics for department and role
+  tab4 <- df %>% 
+    group_by(Department,Role) %>% 
+    summarise(count = n()) %>% 
+    ungroup() %>% 
+    mutate(percentage = round(count/sum(count)*100,0))
+  ##Bar graph for department and role
+   tab4
+  bargraph4 <- ggplot(data = tab4, aes(x = Department, y = percentage, fill = Role))+
+               geom_bar(stat = "identity",position = "dodge")+
+               geom_text(aes(label = paste0(percentage,"%"),hjust = 0.5,vjust = 0.25),
+                          position = position_dodge(width = 0.9))+
+               mytheme+
+  
+               scale_fill_manual(values = c("pink","blue","maroon"))+
+               labs(title = "Distribution of Department\n per role", 
+                          x = "Department",y = "percentage")+
+              facet_wrap(~Role, nrow = 3)
+  bargraph4
+```
+```{r}
+##Bar graph to show age category vs gender
+  ####Create age categories
+  tab5 <- df %>% 
+       mutate(age_cat = if_else(Age >=18 & Age <= 24,"Young",
+                                if_else(Age >25 & Age <= 35, "middle_age","Old_aged"))) %>% 
+       group_by(age_cat,Gender) %>% 
+       summarize(count = n()) %>% 
+       mutate(perc = round(count/sum(count)*100,0))
+tab5
+  ##Bar graph
+   bargraph5 <- ggplot(data = tab5, aes(x = age_cat, y = perc, fill = Gender))+
+                geom_bar(stat = "identity", position = "stack")+
+                geom_text(aes(label = paste0(perc,"%"), hjust = 0.5, vjust = 0))+
+                mytheme+
+                scale_fill_manual(values = c("orange","grey"))+
+     labs(title = "Distribution of age categories and gender",
+              x = "Age category",y = "Percentage")
+   bargraph5
+```
+```{r}
+tab5 <- df %>% 
+    group_by(Marital_Status,Gender) %>% 
+    summarize(count = n()) %>% 
+    mutate(percentage = round(count/sum(count)*100,0))
+tab5 
+ 
+  bargraph6 <- ggplot(data = tab5, aes(x =percentage, y =Marital_Status, fill = Gender))+
+              geom_bar(stat = "identity",position = "dodge", colour="black")+
+              # scale_fill_manual(values=c("#eb5859", "#315975"))+
+              geom_text(aes(label = percentage,hjust = 1.5,vjust = -0.3),
+                        position = position_dodge(width = 1.0))+
+              
+    mytheme+
+      scale_fill_manual(values = c("#eb5859", "#315975"))+
+    labs(title = "Distribution of Marital status per gender",
+         x = "Marital status",
+         y ="percentage")
+  bargraph6
+```
+```{r}
+mytheme <-  theme(#plot.title = element_text(face = "bold", hjust = 0.5, vjust = -0.25,size = 14),
+                #axis.title = element_text(face = "italic", size = 12),
+                # axis.text = element_text(face = "bold"),
+                axis.line = element_line(size = 1),
+                panel.border = element_blank(),
+                panel.grid.major = element_blank(),
+                panel.grid.minor = element_blank(),
+                # plot.subtitle = element_text(hjust = 0.5,size = 12),
+                # plot.caption = element_text(face = "bold",size = 12),
+                panel.background = element_rect(fill = "#d4cabd", colour = "#d4cabd"),
+                plot.background = element_rect(fill = "#d4cabd", color = "#d4cabd"),
+                # bg of the plot
+                axis.title = element_blank(),
+                axis.text = element_text(size = rel(0.8), colour = "black"),
+                legend.position="bottom",
+                legend.title = element_blank(),
+                legend.background = element_rect(fill = "#d4cabd")) # get rid of legend bg
+                # legend.box.background = element_rect(fill = "#555859") # get rid of legend panel bg
+```
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 10, fig.height = 5)
+dat_2 <- read_delim("actions.csv", "\t", 
+    escape_double = FALSE, trim_ws = TRUE)
+bargraph7 <- ggplot(data = dat_2, aes(x =Indicator, y =Perc, fill = Refugee_Status))+
+              geom_bar(stat = "identity",position = "dodge", colour="black")+
+              coord_flip()+
+              scale_y_continuous(expand = c(0, 0))+
+              # scale_fill_manual(values=c("#eb5859", "#315975"))+
+              geom_text(aes(label = paste0(Perc,"%"),hjust = 1.0,vjust = 0.3),size=2.5,
+                        position = position_dodge(width = 1.0))+
+              
+    mytheme+
+      scale_fill_manual(values = c("#eb5859", "#315975"))
+      
+    # labs(title = "Distribution of Marital status per gender",
+    #      x = "Marital status",
+    #      y ="percentage")
+  bargraph7
+```
+
